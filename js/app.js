@@ -66,6 +66,7 @@
     buildSeatRows(saved);
     syncMuggins();
     $('#setup-error').textContent = errorText || '';
+    $('#result-modal').hidden = true;
     showModal('#setup-modal');
   }
 
@@ -154,6 +155,7 @@
     $('#room-badge').hidden = true;
     $('#banner').hidden = true;
     $('#chat-form').hidden = true;
+    $('#result-modal').hidden = true;
     UI.reset();
   }
   function teardownIfIdle() { /* keep current game running behind the modal until a new one starts */ }
@@ -413,7 +415,7 @@
       rerender: hostRender,
       takeOver: (seat) => g.takeOver(seat),
       onRematch: rematch,
-      onNewGame: () => openSetup(),
+      onNewGame: () => { teardown(); openSetup(); },
     });
   }
 
