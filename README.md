@@ -1,5 +1,7 @@
 # Cribbage
 
+**Play now: https://chrisdfennell.github.io/cribbage-online/**
+
 Browser cribbage for 2–4 players: computer opponents, pass-and-play on one device, or online with friends. It's a static site with no build step and no server.
 
 ## Play
