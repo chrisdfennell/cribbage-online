@@ -65,6 +65,7 @@
 
   // ------------------------------------------------------------------ seats
   function renderSeats(view, ctx) {
+    $('#table').dataset.n = view.n; // lets the phone layout arrange 1–3 opponents in one row
     const n = view.n;
     const pos = POSITIONS[n];
     ['top', 'left', 'right', 'bottom'].forEach((p) => { const c = $('#pos-' + p); c.innerHTML = ''; c.classList.toggle('empty', true); });
@@ -85,6 +86,7 @@
       if (p.kind === 'ai') head.append(el('span', 'tag', 'AI'));
       if (p.kind === 'remote') head.append(el('span', 'tag', 'online'));
       if (view.dealer === i && view.phase !== 'cutdeal') head.append(el('span', 'chip-dealer', 'Dealer'));
+      head.append(el('span', 'seat-score', String(team.score)));
       seat.append(head);
 
       const status = el('div', 'seat-status');
@@ -189,6 +191,7 @@
 
   function renderSpread(container, data, onPick) {
     const spread = el('div', 'spread');
+    spread.style.setProperty('--n', data.size);
     for (let i = 0; i < data.size; i++) {
       const b = backEl('small');
       if (i >= data.min && i <= data.max) {
@@ -382,9 +385,7 @@
       row.append(bar);
       box.append(row);
     });
-    if (!state.board) state.board = new root.CribBoard($('#board'));
-    state.board.setup(view.teams);
-    state.board.update(view.teams);
+    drawBoard(view);
   }
 
   function renderLog(view, ctx) {
@@ -470,7 +471,22 @@
     return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
+  /** Phones get the folded 4-row board so it fits without scrolling. */
+  function drawBoard(view) {
+    if (!state.board) state.board = new root.CribBoard($('#board'));
+    const compact = $('.board-col').clientWidth < 700;
+    state.board.setup(view.teams, compact);
+    state.board.update(view.teams);
+  }
+
+  let resizeTimer = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { if (state.lastView) drawBoard(state.lastView); }, 120);
+  });
+
   function render(view, ctx) {
+    state.lastView = view;
     document.body.classList.toggle('in-game', true);
     renderSeats(view, ctx);
     renderCenter(view, ctx);

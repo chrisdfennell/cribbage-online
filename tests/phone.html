@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Phone preview</title>
+<style>
+  body { margin: 0; background: #333; display: flex; gap: 16px; padding: 16px; align-items: flex-start; }
+  iframe { border: 0; background: #000; flex: none; }
+</style></head>
+<body>
+<!-- Phone-sized previews of the game. ?n=players &q=extra query (e.g. watch) -->
+<script>
+  const p = new URLSearchParams(location.search);
+  const n = p.get('n') || '3';
+  const sizes = (p.get('sizes') || '390x844,360x740').split(',');
+  for (const s of sizes) {
+    const [w, h] = s.split('x');
+    const f = document.createElement('iframe');
+    f.width = w; f.height = h;
+    f.src = p.has('setup') ? '../index.html' : `../index.html?quick=${n}${p.has('human') ? '' : '&watch'}`;
+    document.body.append(f);
+  }
+</script>
+</body>
+</html>
