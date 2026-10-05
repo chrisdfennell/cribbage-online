@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Online play test</title></head>
+<body>
+<pre id="out">running…</pre>
+<div style="display:flex;gap:8px">
+  <iframe id="host" style="width:1200px;height:800px"></iframe>
+  <iframe id="guest" style="width:1200px;height:800px"></iframe>
+</div>
+<script>
+  // Host (computer in seat 1 via "watch") vs a remote guest that auto-plays, over real PeerJS.
+  const players = new URLSearchParams(location.search).get('n') || '2';
+  const out = document.getElementById('out');
+  const events = [];
+  const report = (o) => { events.push(o); out.textContent = JSON.stringify(events); document.title = "T:" + JSON.stringify(events); };
+  window.addEventListener('message', (e) => {
+    const m = e.data;
+    if (!m || !m.cribDev) return;
+    report(m);
+    if (m.type === 'code') document.getElementById('guest').src = `../index.html?join=${m.code}&autojoin&autoplay&name=Remote`;
+    if (m.type === 'guest-over') report({ type: 'done' });
+  });
+  document.getElementById('host').src = `../index.html?quick=${players}&watch&online=1&autostart&speed=instant`;
+  setTimeout(() => report({ type: 'timeout' }), 170000);
+</script>
+</body>
+</html>

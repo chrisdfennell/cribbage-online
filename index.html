@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cribbage</title>
+  <meta name="description" content="Play cribbage with up to 4 players — computer opponents, pass-and-play, or online with friends.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-suit">♠</span> Cribbage</div>
+    <button id="room-badge" class="room-badge" type="button" hidden></button>
+    <div class="topbar-actions">
+      <button id="btn-rules" class="btn ghost" type="button">Rules</button>
+      <button id="btn-new" class="btn" type="button">New game</button>
+    </div>
+  </header>
+  <div id="banner" class="banner" hidden></div>
+
+  <main class="layout">
+    <section class="board-col" aria-label="Cribbage board">
+      <svg id="board" class="board" role="img" aria-label="Cribbage board with pegs"></svg>
+    </section>
+
+    <section id="table" class="table">
+      <div id="pos-top" class="pos pos-top"></div>
+      <div id="pos-left" class="pos pos-left"></div>
+      <div id="center" class="center">
+        <div id="deck-area" class="area deck-area"></div>
+        <div id="pile-area" class="area pile-area"></div>
+        <div id="crib-area" class="area crib-area"></div>
+      </div>
+      <div id="pos-right" class="pos pos-right"></div>
+      <div id="pos-bottom" class="pos pos-bottom"></div>
+      <div id="hand-area" class="hand-area"></div>
+
+      <div id="show-panel" class="show-panel" hidden></div>
+      <div id="handoff" class="handoff" hidden></div>
+      <div id="toasts" class="toasts"></div>
+    </section>
+
+    <aside class="side">
+      <div class="panel">
+        <div class="panel-title">Score <span class="muted">· game to 121</span></div>
+        <div id="scores"></div>
+      </div>
+      <div class="panel log-panel">
+        <div class="panel-title">Game log</div>
+        <div id="log" class="log"></div>
+        <form id="chat-form" class="chat-form" hidden autocomplete="off">
+          <input id="chat-input" maxlength="200" placeholder="Chat…">
+          <button class="btn tiny" type="submit">Send</button>
+        </form>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Setup -->
+  <div id="setup-modal" class="modal setup-like" hidden>
+    <div class="modal-card wide">
+      <div class="modal-body">
+        <h2>New game</h2>
+        <form id="setup-form" class="setup-form">
+          <label class="field">Players
+            <select id="setup-count">
+              <option value="2">2 players</option>
+              <option value="3">3 players</option>
+              <option value="4">4 players (partners)</option>
+            </select>
+          </label>
+          <div id="setup-seats" class="setup-seats"></div>
+          <p id="setup-partners" class="note" hidden>Four players play as partners, seated opposite: seats 1 &amp; 3 vs seats 2 &amp; 4.</p>
+          <div class="field-row">
+            <label class="field">Computer skill
+              <select id="setup-difficulty">
+                <option value="expert">Expert</option>
+                <option value="casual">Casual</option>
+              </select>
+            </label>
+            <label class="field">Speed
+              <select id="setup-speed">
+                <option value="slow">Slow</option>
+                <option value="normal">Normal</option>
+                <option value="fast">Fast</option>
+              </select>
+            </label>
+          </div>
+          <label class="check"><input type="checkbox" id="setup-manual"> Count my own hands (the show)</label>
+          <label class="check"><input type="checkbox" id="setup-muggins"> Muggins: opponents take points you miss</label>
+          <div class="modal-actions">
+            <button class="btn primary" type="submit">Start game</button>
+          </div>
+          <p class="note">Choose “Online player” for any seat to get a room code and invite link for friends.</p>
+        </form>
+
+        <div class="divider"><span>or</span></div>
+
+        <h3>Join a friend's game</h3>
+        <form id="join-form" class="join-form" autocomplete="off">
+          <input id="join-code" placeholder="Room code" maxlength="8" class="code-input">
+          <input id="join-name" placeholder="Your name" maxlength="18">
+          <button class="btn primary" type="submit">Join</button>
+        </form>
+        <p id="setup-error" class="note warn"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lobby -->
+  <div id="lobby-modal" class="modal setup-like" hidden>
+    <div class="modal-card"><div class="modal-body"></div></div>
+  </div>
+
+  <!-- Result -->
+  <div id="result-modal" class="modal" hidden>
+    <div class="modal-card"><div class="modal-body"></div></div>
+  </div>
+
+  <!-- Rules -->
+  <div id="rules-modal" class="modal" hidden>
+    <div class="modal-card wide rules">
+      <div class="modal-body">
+        <h2>Rules of cribbage</h2>
+        <p>The first side to peg <strong>121</strong> wins, and the game ends the instant that happens, even during the play.</p>
+
+        <h3>Players and the deal</h3>
+        <ul>
+          <li>Players cut for deal; the lowest card deals (aces are low). Ties cut again. The deal then passes to the left each hand. In two-handed play, the loser of a game deals first in the next.</li>
+          <li><strong>2 players:</strong> 6 cards each; each lays away 2 to the crib.</li>
+          <li><strong>3 players:</strong> 5 cards each, plus 1 card dealt straight to the crib; each lays away 1.</li>
+          <li><strong>4 players:</strong> partners sitting opposite share one score. 5 cards each; each lays away 1.</li>
+          <li>The crib always has 4 cards and belongs to the dealer.</li>
+        </ul>
+
+        <h3>The starter</h3>
+        <ul>
+          <li>The player on the dealer's left cuts the remaining pack (at least 4 cards in each part) and the top card of the lower part is turned up as the starter.</li>
+          <li>If the starter is a jack, the dealer pegs 2 for <em>his heels</em>.</li>
+        </ul>
+
+        <h3>The play (pegging)</h3>
+        <ul>
+          <li>Starting left of the dealer, players take turns laying one card face up, announcing the running total. Face cards count 10, aces 1.</li>
+          <li>The count may not exceed 31. If you cannot play without going over, say <em>Go</em>. Play continues with anyone who can still play, and you must play if you are able.</li>
+          <li>When nobody can play, the last player to lay a card pegs <strong>1 for the go</strong> (or 2 if they hit exactly 31). The count resets and the player to the left of the last player starts the next series.</li>
+          <li>Playing the final card of the play pegs <strong>1 for last card</strong>, unless it made 31.</li>
+          <li>Scoring during the play:
+            <ul>
+              <li>Making the count 15: 2. Making exactly 31: 2.</li>
+              <li>Pair (same rank as the previous card): 2. Three of a kind in a row (pair royal): 6. Four (double pair royal): 12.</li>
+              <li>Run of 3 or more consecutive cards among the most recent ones, in any order (for example 4-6-5): 1 per card. The run must not be broken by another card.</li>
+            </ul>
+          </li>
+        </ul>
+
+        <h3>The show</h3>
+        <p>Hands are counted in order starting left of the dealer; the dealer counts their hand last and then the crib. Each hand uses the starter as a fifth card.</p>
+        <ul>
+          <li>Each combination of cards totalling 15: 2.</li>
+          <li>Each pair: 2 (three of a kind = 6, four = 12).</li>
+          <li>Runs of 3+ cards: 1 per card; every distinct run counts (double runs, triple runs, double-double runs).</li>
+          <li>Flush: 4 cards of one suit in the hand = 4 (5 with the starter). In the crib only a 5-card flush counts.</li>
+          <li><em>His nobs</em>: the jack of the starter's suit in hand or crib = 1.</li>
+          <li>The highest possible hand is 29. A hand worth nothing is jokingly called “nineteen”.</li>
+        </ul>
+
+        <h3>Optional rules</h3>
+        <ul>
+          <li><strong>Count your own hands:</strong> you claim your score in the show. Over-counts are corrected.</li>
+          <li><strong>Muggins:</strong> with self-counting on, points you overlook are taken by the next opponent.</li>
+        </ul>
+
+        <h3>Skunks</h3>
+        <p>If the loser finishes at 90 or less (fails to pass the skunk line), they are <em>skunked</em>, which counts as a double game. At 60 or less it's a <em>double skunk</em>.</p>
+
+        <h3>The board</h3>
+        <p>Each side has two pegs. The back peg leapfrogs the front peg each time you score, so the gap between them shows the last score. Pegs start in the start holes, travel up the left (1–60), down the right (61–120), and finish in the game hole.</p>
+
+        <div class="modal-actions"><button class="btn primary" type="button" data-close>Close</button></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="js/cards.js"></script>
+  <script src="js/scoring.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/board.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/net.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
